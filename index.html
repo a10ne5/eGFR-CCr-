@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>eGFR・CCR計算アプリ</title>
+    <meta name="theme-color" content="#0d7a63" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="eGFR・CCR" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icon.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <p class="eyebrow">Kidney Function Calculator</p>
+        <h1>eGFR・CCR計算アプリ</h1>
+        <p class="lead">
+          年齢・性別・血清クレアチニンを入力するとeGFRを計算でき、体重も入力するとCCRもあわせて計算できます。
+        </p>
+        <p class="install-note" id="offline-status">
+          初回だけSafariでオンライン表示すると、あとでオフラインでも使いやすくなります。
+        </p>
+      </section>
+
+      <section class="card">
+        <form id="calculator-form" novalidate>
+          <div class="grid">
+            <label class="field">
+              <span>年齢</span>
+              <div class="input-row">
+                <input id="age" name="age" type="number" min="18" step="1" placeholder="例: 45" />
+                <small>歳</small>
+              </div>
+            </label>
+
+            <fieldset class="field">
+              <legend>性別</legend>
+              <div class="radio-group">
+                <label><input type="radio" name="sex" value="male" checked /> 男性</label>
+                <label><input type="radio" name="sex" value="female" /> 女性</label>
+              </div>
+            </fieldset>
+
+            <label class="field">
+              <span>血清クレアチニン</span>
+              <div class="input-row">
+                <input
+                  id="creatinine"
+                  name="creatinine"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  placeholder="例: 0.82"
+                />
+                <small>mg/dL</small>
+              </div>
+            </label>
+
+            <label class="field">
+              <span>体重</span>
+              <div class="input-row">
+                <input id="weight" name="weight" type="number" min="1" step="0.1" placeholder="例: 60" />
+                <small>kg</small>
+              </div>
+              <small>CCRを計算する場合に入力します。</small>
+            </label>
+          </div>
+
+          <p id="error-message" class="error-message" aria-live="polite"></p>
+
+          <div class="button-row">
+            <button type="button" class="primary-button" id="calculate-button">計算する</button>
+            <button type="button" class="secondary-button" id="reset-button">リセット</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="results" aria-live="polite" aria-atomic="true">
+        <article class="result-card">
+          <p class="result-label">eGFR</p>
+          <p class="result-value" id="egfr-value">-</p>
+          <p class="result-unit">mL/min/1.73m²</p>
+          <p class="result-note" id="egfr-stage">計算するとここに結果が表示されます。</p>
+        </article>
+
+        <article class="result-card">
+          <p class="result-label">CCR</p>
+          <p class="result-value" id="ccr-value">-</p>
+          <p class="result-unit">mL/min</p>
+          <p class="result-note" id="ccr-note">体重を入力すると計算されます。</p>
+        </article>
+      </section>
+
+      <section class="card note-card">
+        <h2>このアプリについて</h2>
+        <ul>
+          <li>eGFRは日本人向けの血清クレアチニンベース式で計算します。</li>
+          <li>CCRはCockcroft-Gault式で計算します。</li>
+          <li>体重が未入力でもeGFRは計算され、CCRのみ未計算になります。</li>
+          <li>この結果は参考値です。診断や治療の判断そのものには使わないでください。</li>
+        </ul>
+      </section>
+    </main>
+
+    <script src="./script.js"></script>
+  </body>
+</html>

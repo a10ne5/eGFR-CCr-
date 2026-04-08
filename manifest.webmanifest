@@ -1,0 +1,16 @@
+{
+  "name": "eGFR・CCR計算アプリ",
+  "short_name": "eGFR・CCR",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4efe7",
+  "theme_color": "#0d7a63",
+  "description": "eGFRとCCRを計算できるオフライン対応のシンプルな計算アプリです。",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
