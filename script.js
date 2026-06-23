@@ -4,9 +4,15 @@ const resetButton = document.getElementById("reset-button");
 const errorMessage = document.getElementById("error-message");
 const egfrValue = document.getElementById("egfr-value");
 const ccrValue = document.getElementById("ccr-value");
+const bsaValue = document.getElementById("bsa-value");
 const egfrStage = document.getElementById("egfr-stage");
 const ccrNote = document.getElementById("ccr-note");
+const bsaNote = document.getElementById("bsa-note");
 const offlineStatus = document.getElementById("offline-status");
+
+const DEFAULT_EGFR_NOTE = "年齢・性別・血清クレアチニンを入力すると計算されます。";
+const DEFAULT_CCR_NOTE = "体重を入力すると計算されます。";
+const DEFAULT_BSA_NOTE = "身長と体重を入力すると計算されます。";
 
 function calculateEgfr(age, sex, creatinine) {
   const base = 194 * Math.pow(creatinine, -1.094) * Math.pow(age, -0.287);
@@ -16,6 +22,10 @@ function calculateEgfr(age, sex, creatinine) {
 function calculateCcr(age, sex, creatinine, weight) {
   const base = ((140 - age) * weight) / (72 * creatinine);
   return sex === "female" ? base * 0.85 : base;
+}
+
+function calculateBsa(height, weight) {
+  return 0.008883 * Math.pow(height, 0.663) * Math.pow(weight, 0.444);
 }
 
 function getEgfrStage(egfr) {
@@ -31,31 +41,60 @@ function formatNumber(value) {
   return Number.isFinite(value) ? value.toFixed(1) : "-";
 }
 
-function validateCoreInput(age, creatinine) {
-  if (!age || !creatinine) {
-    return "年齢と血清クレアチニンを入力してください。";
+function validateAge(age) {
+  if (!age) {
+    return {
+      kind: "missing",
+      message: "eGFRとCCRの計算には年齢を入力してください。"
+    };
   }
 
   if (age < 18) {
-    return "この計算は18歳以上を想定しています。";
-  }
-
-  if (creatinine <= 0) {
-    return "血清クレアチニンは0より大きい値を入力してください。";
+    return {
+      kind: "invalid",
+      message: "eGFRとCCRの計算は18歳以上を想定しています。"
+    };
   }
 
   if (age > 120) {
-    return "年齢が大きすぎるようです。入力値を確認してください。";
+    return {
+      kind: "invalid",
+      message: "年齢が大きすぎるようです。入力値を確認してください。"
+    };
   }
 
-  return "";
+  return {
+    kind: "valid",
+    message: ""
+  };
+}
+
+function validateCreatinine(creatinine) {
+  if (!creatinine) {
+    return {
+      kind: "missing",
+      message: "eGFRとCCRの計算には血清クレアチニンを入力してください。"
+    };
+  }
+
+  if (creatinine <= 0) {
+    return {
+      kind: "invalid",
+      message: "血清クレアチニンは0より大きい値を入力してください。"
+    };
+  }
+
+  return {
+    kind: "valid",
+    message: ""
+  };
 }
 
 function validateWeight(weight) {
   if (!weight) {
     return {
       kind: "missing",
-      message: "体重未入力のためCCRは計算していません。"
+      message: DEFAULT_CCR_NOTE
     };
   }
 
@@ -72,40 +111,90 @@ function validateWeight(weight) {
   };
 }
 
+function validateHeight(height) {
+  if (!height) {
+    return {
+      kind: "missing",
+      message: DEFAULT_BSA_NOTE
+    };
+  }
+
+  if (height <= 0) {
+    return {
+      kind: "invalid",
+      message: "身長は0より大きい値を入力してください。"
+    };
+  }
+
+  return {
+    kind: "valid",
+    message: ""
+  };
+}
+
+function getMessageForState(state) {
+  return state.kind === "valid" ? "" : state.message;
+}
+
+function setDefaultResults() {
+  egfrValue.textContent = "-";
+  ccrValue.textContent = "-";
+  bsaValue.textContent = "-";
+  egfrStage.textContent = DEFAULT_EGFR_NOTE;
+  ccrNote.textContent = DEFAULT_CCR_NOTE;
+  bsaNote.textContent = DEFAULT_BSA_NOTE;
+}
+
 function runCalculation() {
   const formData = new FormData(form);
   const age = Number(formData.get("age"));
   const sex = String(formData.get("sex"));
   const creatinine = Number(formData.get("creatinine"));
   const weight = Number(formData.get("weight"));
-
-  const validationMessage = validateCoreInput(age, creatinine);
-  if (validationMessage) {
-    errorMessage.textContent = validationMessage;
-    egfrValue.textContent = "-";
-    ccrValue.textContent = "-";
-    egfrStage.textContent = "入力内容を確認してください。";
-    ccrNote.textContent = "体重を入力すると計算されます。";
-    return;
-  }
-
-  const egfr = calculateEgfr(age, sex, creatinine);
-  egfrValue.textContent = formatNumber(egfr);
-  egfrStage.textContent = getEgfrStage(egfr);
-
+  const height = Number(formData.get("height"));
+  const ageState = validateAge(age);
+  const creatinineState = validateCreatinine(creatinine);
   const weightState = validateWeight(weight);
-  if (weightState.kind !== "valid") {
-    ccrValue.textContent = "-";
-    ccrNote.textContent = weightState.message;
-    errorMessage.textContent = weightState.kind === "invalid" ? weightState.message : "";
-    return;
+  const heightState = validateHeight(height);
+  const kidneyInputsReady = ageState.kind === "valid" && creatinineState.kind === "valid";
+
+  if (kidneyInputsReady) {
+    const egfr = calculateEgfr(age, sex, creatinine);
+    egfrValue.textContent = formatNumber(egfr);
+    egfrStage.textContent = getEgfrStage(egfr);
+  } else {
+    egfrValue.textContent = "-";
+    egfrStage.textContent = DEFAULT_EGFR_NOTE;
   }
 
-  errorMessage.textContent = "";
+  if (kidneyInputsReady && weightState.kind === "valid") {
+    const ccr = calculateCcr(age, sex, creatinine, weight);
+    ccrValue.textContent = formatNumber(ccr);
+    ccrNote.textContent = "Cockcroft-Gault式による推算値";
+  } else {
+    ccrValue.textContent = "-";
+    ccrNote.textContent = weightState.kind === "missing"
+      ? DEFAULT_CCR_NOTE
+      : "年齢・血清クレアチニン・体重を入力すると計算されます。";
+  }
 
-  const ccr = calculateCcr(age, sex, creatinine, weight);
-  ccrValue.textContent = formatNumber(ccr);
-  ccrNote.textContent = "Cockcroft-Gault式による推算値";
+  if (weightState.kind === "valid" && heightState.kind === "valid") {
+    const bsa = calculateBsa(height, weight);
+    bsaValue.textContent = formatNumber(bsa);
+    bsaNote.textContent = "藤本式による推算値";
+  } else {
+    bsaValue.textContent = "-";
+    bsaNote.textContent = DEFAULT_BSA_NOTE;
+  }
+
+  const messages = [
+    getMessageForState(ageState),
+    getMessageForState(creatinineState),
+    weightState.kind === "invalid" ? weightState.message : "",
+    heightState.kind === "invalid" ? heightState.message : ""
+  ].filter(Boolean);
+
+  errorMessage.textContent = [...new Set(messages)].join(" ");
 }
 
 form.addEventListener("submit", (event) => {
@@ -119,11 +208,10 @@ resetButton.addEventListener("click", () => {
   form.reset();
   form.querySelector('input[name="sex"][value="male"]').checked = true;
   errorMessage.textContent = "";
-  egfrValue.textContent = "-";
-  ccrValue.textContent = "-";
-  egfrStage.textContent = "計算するとここに結果が表示されます。";
-  ccrNote.textContent = "体重を入力すると計算されます。";
+  setDefaultResults();
 });
+
+setDefaultResults();
 
 if ("serviceWorker" in navigator && window.isSecureContext) {
   window.addEventListener("load", async () => {

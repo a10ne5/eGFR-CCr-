@@ -1,4 +1,4 @@
-const CACHE_NAME = "egfr-ccr-app-v1";
+const CACHE_NAME = "egfr-ccr-bsa-app-v2";
 const APP_SHELL = [
   "./",
   "./index.html",

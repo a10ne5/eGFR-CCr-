@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>eGFR・CCR計算アプリ</title>
+    <title>eGFR・CCR・BSA計算アプリ</title>
     <meta name="theme-color" content="#0d7a63" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="eGFR・CCR" />
+    <meta name="apple-mobile-web-app-title" content="eGFR・CCR・BSA" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="./icon.svg" />
@@ -17,9 +17,9 @@
     <main class="page">
       <section class="hero">
         <p class="eyebrow">Kidney Function Calculator</p>
-        <h1>eGFR・CCR計算アプリ</h1>
+        <h1>eGFR・CCR・BSA計算アプリ</h1>
         <p class="lead">
-          年齢・性別・血清クレアチニンを入力するとeGFRを計算でき、体重も入力するとCCRもあわせて計算できます。
+          年齢・性別・血清クレアチニンでeGFR、体重でCCR、身長と体重でBSA（藤本式）を計算できます。
         </p>
         <p class="install-note" id="offline-status">
           初回だけSafariでオンライン表示すると、あとでオフラインでも使いやすくなります。
@@ -66,7 +66,16 @@
                 <input id="weight" name="weight" type="number" min="1" step="0.1" placeholder="例: 60" />
                 <small>kg</small>
               </div>
-              <small>CCRを計算する場合に入力します。</small>
+              <small>CCRとBSAを計算する場合に入力します。</small>
+            </label>
+
+            <label class="field">
+              <span>身長</span>
+              <div class="input-row">
+                <input id="height" name="height" type="number" min="1" step="0.1" placeholder="例: 165" />
+                <small>cm</small>
+              </div>
+              <small>BSA（藤本式）を計算する場合に入力します。</small>
             </label>
           </div>
 
@@ -84,7 +93,7 @@
           <p class="result-label">eGFR</p>
           <p class="result-value" id="egfr-value">-</p>
           <p class="result-unit">mL/min/1.73m²</p>
-          <p class="result-note" id="egfr-stage">計算するとここに結果が表示されます。</p>
+          <p class="result-note" id="egfr-stage">年齢・性別・血清クレアチニンを入力すると計算されます。</p>
         </article>
 
         <article class="result-card">
@@ -93,6 +102,13 @@
           <p class="result-unit">mL/min</p>
           <p class="result-note" id="ccr-note">体重を入力すると計算されます。</p>
         </article>
+
+        <article class="result-card">
+          <p class="result-label">BSA</p>
+          <p class="result-value" id="bsa-value">-</p>
+          <p class="result-unit">m²</p>
+          <p class="result-note" id="bsa-note">身長と体重を入力すると計算されます。</p>
+        </article>
       </section>
 
       <section class="card note-card">
@@ -100,7 +116,8 @@
         <ul>
           <li>eGFRは日本人向けの血清クレアチニンベース式で計算します。</li>
           <li>CCRはCockcroft-Gault式で計算します。</li>
-          <li>体重が未入力でもeGFRは計算され、CCRのみ未計算になります。</li>
+          <li>BSAは藤本式 0.008883 × 身長(cm)^0.663 × 体重(kg)^0.444 で計算します。</li>
+          <li>必要な項目だけ入力されていれば、eGFR・CCR・BSAをそれぞれ個別に計算します。</li>
           <li>この結果は参考値です。診断や治療の判断そのものには使わないでください。</li>
         </ul>
       </section>

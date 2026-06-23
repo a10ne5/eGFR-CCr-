@@ -1,11 +1,11 @@
 {
-  "name": "eGFR・CCR計算アプリ",
-  "short_name": "eGFR・CCR",
+  "name": "eGFR・CCR・BSA計算アプリ",
+  "short_name": "eGFR・CCR・BSA",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f4efe7",
   "theme_color": "#0d7a63",
-  "description": "eGFRとCCRを計算できるオフライン対応のシンプルな計算アプリです。",
+  "description": "eGFR・CCR・BSAを計算できるオフライン対応のシンプルな計算アプリです。",
   "icons": [
     {
       "src": "./icon.svg",
